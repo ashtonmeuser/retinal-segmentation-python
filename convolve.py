@@ -9,13 +9,14 @@ import numpy as np
 def convolve(img, k_size, function):
     """
     Apply function to each pixel in image with a neighborhood size of k_size
+    Returns numpy array of objects to be cast by caller
     """
     if k_size % 2 != 1 or k_size < 1:
         raise ValueError('Neighborhod size must be a positive odd number')
 
     pad = floor(k_size / 2)
     (img_height, img_width) = img.shape[:2]
-    result = np.zeros((img_height, img_width), dtype=np.uint8) # To store resultant image
+    result = np.full((img_height, img_width), None, dtype=object) # To store resultant image
     img_padded = cv2.copyMakeBorder(img, pad, pad, pad, pad, cv2.BORDER_REFLECT)
 
     def get_neighborhood(img, p_x, p_y, pad):
