@@ -10,7 +10,7 @@ def convolve(img, k_size, function):
     """
     Apply function to each pixel in image with a neighborhood size of k_size
     """
-    if k_size % 2 != 0 or k_size < 1:
+    if k_size % 2 != 1 or k_size < 1:
         raise ValueError('Neighborhod size must be a positive odd number')
 
     pad = floor(k_size / 2)
