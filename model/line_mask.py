@@ -30,6 +30,7 @@ class LineMask: # pylint: disable=R0903
         for i in range(0, quarter_size):
             quarter[quarter_size - round(rise * i) - 1, i] = 1
 
+        # Full-size line mask
         mask = np.zeros((k_size, k_size), dtype=np.bool)
         mask[:quarter_size, quarter_size - 1:] = quarter # Q1
         mask[quarter_size - 1:, :quarter_size] = np.rot90(quarter, 2) # Q3
@@ -40,9 +41,22 @@ class LineMask: # pylint: disable=R0903
         if angle > 90.0:
             mask = np.fliplr(mask)
 
+        # Centered mask used to determine create orthogonal mask
         orthogonal_radius = math.floor(orthogonal_length / 2)
-        center = mask[quarter_size - 1 - orthogonal_radius: quarter_size + orthogonal_radius,
-                      quarter_size - 1 - orthogonal_radius: quarter_size + orthogonal_radius]
+        center_mask = np.zeros((k_size, k_size), dtype=np.bool)
+        center_mask[quarter_size - 1 - orthogonal_radius: quarter_size + orthogonal_radius,
+                    quarter_size - 1 - orthogonal_radius: quarter_size + orthogonal_radius] = True
 
         self.mask = mask
-        self.orthogonal_mask = np.rot90(center) # Orthogonal line of length
+        self.orthogonal_mask = np.logical_and(np.rot90(mask), center_mask)
+
+def generate_line_mask_list(k_size, resolution):
+    """
+    Create list of binary line masks rotated by resolution degrees
+    """
+    steps = math.floor(180.0 / resolution)
+    mask_list = list()
+    for i in range(0, steps):
+        mask_list.append(LineMask(k_size, resolution * i))
+
+    return mask_list
