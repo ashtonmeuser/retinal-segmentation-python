@@ -11,6 +11,7 @@ def line_score(neighborhood, mask_list):
     if not mask_list:
         raise ValueError('Must supply at least one line mask to calculate score')
 
+    neighborhood = neighborhood[:, :, 0]
     scores = list()
     neighborhood_average = np.mean(neighborhood)
 

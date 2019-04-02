@@ -5,12 +5,13 @@ Common functions perfromed on images
 import cv2
 import matplotlib.pyplot as plt
 
-def read_image(image_path):
+def read_image(image_path, greyscale=False):
     """
     Read image as color or grayscale from path
     Returns numpy array
     """
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    mode = cv2.IMREAD_GRAYSCALE if greyscale else cv2.IMREAD_COLOR
+    image = cv2.imread(image_path, mode)
 
     if image is None:
         raise ValueError('Invalid image path {}'.format(image_path))
@@ -36,3 +37,9 @@ def display_image(image):
     plt.imshow(image, cmap='gray', interpolation='none')
     _ = plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     plt.show()
+
+def pad_image(image, pad, value):
+    """
+    Apply a border of value and width pad around image
+    """
+    return cv2.copyMakeBorder(image, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=value)
