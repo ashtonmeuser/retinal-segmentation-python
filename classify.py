@@ -2,6 +2,7 @@
 Classify pixels as either vessel or background
 """
 
+import pickle
 from sklearn import svm, metrics
 
 def train(feature_image, truth_image):
@@ -10,16 +11,15 @@ def train(feature_image, truth_image):
     """
     flat_image = feature_image.reshape(-1, feature_image.shape[-1])
     flat_truth = truth_image.flatten()
-    print(feature_image.shape, flat_image.shape, flat_truth.shape)
-    clf = svm.SVC(kernel='linear')
-    clf.fit(flat_image, flat_truth)
+    model = svm.SVC(kernel='linear')
+    model.fit(flat_image, flat_truth) # Train
+    pickle.dump(model, open('model.p', 'wb')) # Persist model
 
-    return clf
-
-def classify(feature_image, model):
+def classify(feature_image):
     """
     Classify image from feature array and trained model
     """
+    model = pickle.load(open('model.p', 'rb')) # Load model
     shape = feature_image.shape[:2]
     flat_image = feature_image.reshape(-1, feature_image.shape[-1])
 
@@ -31,5 +31,4 @@ def assess(truth, prediction):
     """
     flat_truth = truth.reshape(-1, truth.shape[-1])
     flat_prediction = prediction.reshape(-1, prediction.shape[-1])
-    print(flat_prediction.shape, flat_truth.shape)
     print('Accuracy: {}'.format(metrics.accuracy_score(flat_truth, flat_prediction)))

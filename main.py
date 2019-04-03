@@ -24,6 +24,7 @@ def main():
     parser.add_argument('-k', '--kernel', help='Window size', type=int, default=15)
     parser.add_argument('-r', '--resolution', help='Rotation resolution', type=int, default=15)
     parser.add_argument('-s', '--save', help='Save image', action='store_true')
+    parser.add_argument('-t', '--train', help='Train SVM model', action='store_true')
     parser.add_argument('-d', '--display', help='Display image', action='store_true')
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     args = parser.parse_args()
@@ -36,13 +37,12 @@ def main():
     mask_list = generate_line_mask_list(args.kernel, args.resolution)
     function = lambda x, y: line_score(x, y, mask_list)
     result = convolve(image, args.kernel, function, fov_mask, 2, verbose=args.verbose)
-    # line_score_image = result[:, :, 0].astype(np.uint8)
-
     truth = image_utils.read_image('DRIVE/truth/{:02d}_test_truth.tif'.format(args.image),
                                    greyscale=True).astype(np.bool)
-    model = train(result, truth)
-    prediction = classify(result, model)
-    # image_utils.display_image(prediction)
+
+    if args.train:
+        train(result, truth)
+    prediction = classify(result)
     assess(truth, prediction)
 
     stop = time()
@@ -50,10 +50,10 @@ def main():
     if args.verbose:
         print('time elapsed: {:.2f}s'.format(stop - start))
 
-    # if args.save:
-    #     image_utils.save_image(line_score_image, 'output.png')
-    # if args.display:
-    #     image_utils.display_image(cv2.bitwise_not(line_score_image))
+    if args.save:
+        image_utils.save_image(prediction, 'prediction.png')
+    if args.display:
+        image_utils.display_image(prediction)
 
 if __name__ == '__main__':
     main()

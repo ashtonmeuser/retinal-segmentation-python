@@ -2,3 +2,5 @@ venv
 __pycache__
 DRIVE/test
 DRIVE/training
+model.p
+prediction.png
