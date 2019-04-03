@@ -3,7 +3,6 @@ Line score feature and accompanying orthogonal line score
 """
 
 from math import floor
-import warnings
 import numpy as np
 
 def line_score(neighborhood, fov_mask, mask_list):
@@ -15,31 +14,24 @@ def line_score(neighborhood, fov_mask, mask_list):
     if not mask_list:
         raise ValueError('Must supply at least one line mask to calculate score')
     if not fov_mask[center][center]:
-        return [0.0, 0.0] # Center pixel outside of mask
+        return np.array([0.0, 0.0]) # Center pixel outside of mask
 
     scores = list()
-    with warnings.catch_warnings(): # Expect warnings for mean of empty slice
-        warnings.filterwarnings('error')
-        try:
-            neighborhood_average = np.mean(neighborhood[fov_mask])
-            neighborhood[fov_mask is False] = neighborhood_average
-        except RuntimeWarning:
-            return (0.0, 0.0) # Entire neighborhood outside of mask
+    neighborhood_average = np.mean(neighborhood[fov_mask])
+    neighborhood[fov_mask is False] = neighborhood_average
 
-    def score(average):
+    def score_array(line_average, orthogonal_average):
         """
-        Calculate score from line average, prevent negative scores
+        Numpy array of line and orthogonal scores, prevent negative scores
         """
-        return max(average - neighborhood_average, 0.0) # Prevent negative scores
+        return np.array([
+            max(line_average - neighborhood_average, 0.0),
+            max(orthogonal_average - neighborhood_average, 0.0)
+        ])
 
     for line_mask in mask_list:
         line_average = np.mean(neighborhood[line_mask.mask])
         orthogonal_average = np.mean(neighborhood[line_mask.orthogonal_mask])
-        scores.append(np.array([score(line_average), score(orthogonal_average)]))
-        # scores.append([score(line_average), score(orthogonal_average)])
+        scores.append(score_array(line_average, orthogonal_average))
 
-    # print(scores[0])
-    m = max(scores, key=lambda x: x[0])
-    # print(m)
-    return m
-    # return np.amax(scores, axis=0)
+    return max(scores, key=lambda x: x[0])
