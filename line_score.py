@@ -35,6 +35,11 @@ def line_score(neighborhood, fov_mask, mask_list):
     for line_mask in mask_list:
         line_average = np.mean(neighborhood[line_mask.mask])
         orthogonal_average = np.mean(neighborhood[line_mask.orthogonal_mask])
-        scores.append((score(line_average), score(orthogonal_average)))
+        scores.append(np.array([score(line_average), score(orthogonal_average)]))
+        # scores.append([score(line_average), score(orthogonal_average)])
 
-    return max(scores, key=lambda x: x[0])
+    # print(scores[0])
+    m = max(scores, key=lambda x: x[0])
+    # print(m)
+    return m
+    # return np.amax(scores, axis=0)

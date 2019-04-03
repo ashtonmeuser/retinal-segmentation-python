@@ -6,7 +6,7 @@ from math import floor
 import numpy as np
 from image_utils import pad_image
 
-def convolve(image, k_size, function, mask, verbose=False): # pylint: disable=R0914
+def convolve(image, k_size, function, mask, verbose=False):
     """
     Apply function to each pixel in image with a neighborhood size of k_size
     Returns numpy array of objects to be cast by caller
@@ -32,7 +32,6 @@ def convolve(image, k_size, function, mask, verbose=False): # pylint: disable=R0
         for x_index in np.arange(pad, image_width + pad):
             neighborhood = get_neighborhood(image_padded, x_index, y_index, pad)
             mask_neighborhood = get_neighborhood(mask, x_index, y_index, pad)
-            k = function(neighborhood, mask_neighborhood)
-            result[y_index - pad, x_index - pad] = k[0]
+            result[y_index - pad, x_index - pad] = function(neighborhood, mask_neighborhood)
 
     return result

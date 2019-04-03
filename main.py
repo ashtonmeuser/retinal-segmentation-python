@@ -13,6 +13,7 @@ import image_utils
 from model.line_mask import generate_line_mask_list
 from line_score import line_score
 from create_fov_mask import create_fov_mask
+from classify import classify
 
 def main():
     """
@@ -35,7 +36,12 @@ def main():
     fov_mask = create_fov_mask('DRIVE/mask/{:02d}_test_mask.tif'.format(args.image), args.kernel)
     mask_list = generate_line_mask_list(args.kernel, args.resolution)
     function = lambda x, y: line_score(x, y, mask_list)
-    result = convolve(image, args.kernel, function, fov_mask, verbose=args.verbose).astype(np.uint8)
+    result = convolve(image, args.kernel, function, fov_mask, verbose=args.verbose)
+    # print(result.shape + (2,))
+    # result.shape += (1,)
+    print(np.reshape(result, result.shape + (2,)).shape)
+    print(result[0][0])
+    result = result[:, :, 0].astype(np.uint8)
 
     stop = time()
 
