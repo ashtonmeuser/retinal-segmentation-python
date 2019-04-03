@@ -2,18 +2,29 @@
 Line score feature and accompanying orthogonal line score
 """
 
+from math import floor
+import warnings
 import numpy as np
 
-def line_score(neighborhood, mask_list):
+def line_score(neighborhood, fov_mask, mask_list):
     """
     Line and orthogonal scores
     """
+    center = floor(fov_mask.shape[0] / 2)
+
     if not mask_list:
         raise ValueError('Must supply at least one line mask to calculate score')
+    if not fov_mask[center][center]:
+        return [0.0, 0.0] # Center pixel outside of mask
 
-    neighborhood = neighborhood[:, :, 0]
     scores = list()
-    neighborhood_average = np.mean(neighborhood)
+    with warnings.catch_warnings(): # Expect warnings for mean of empty slice
+        warnings.filterwarnings('error')
+        try:
+            neighborhood_average = np.mean(neighborhood[fov_mask])
+            neighborhood[fov_mask is False] = neighborhood_average
+        except RuntimeWarning:
+            return (0.0, 0.0) # Entire neighborhood outside of mask
 
     def score(average):
         """
