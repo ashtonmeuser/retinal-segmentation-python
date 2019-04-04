@@ -18,7 +18,7 @@ def line_score(neighborhood, fov_mask, mask_list):
 
     scores = list()
     neighborhood_average = np.mean(neighborhood[fov_mask])
-    neighborhood[fov_mask is False] = neighborhood_average
+    neighborhood[~fov_mask] = neighborhood_average
 
     def score_array(line_average, orthogonal_average):
         """
