@@ -29,11 +29,13 @@ def convolve(image, k_size, function, mask, features, verbose=False): # pylint: 
 
     for y_index in np.arange(pad, image_height + pad):
         if verbose:
-            print('progress: {:05.2f}%'.format((y_index - pad) / image_height * 100),
+            print('convolution: {:05.2f}%'.format((y_index - pad) / image_height * 100),
                   end='\r', flush=True)
         for x_index in np.arange(pad, image_width + pad):
             neighborhood = get_neighborhood(image_padded, x_index, y_index, pad)
             mask_neighborhood = get_neighborhood(mask, x_index, y_index, pad)
             result[y_index - pad, x_index - pad] = function(neighborhood, mask_neighborhood)
+    if verbose:
+        print('convolution complete')
 
     return result

@@ -3,6 +3,7 @@ Common functions perfromed on images
 """
 
 import cv2
+import numpy as np
 import matplotlib.pyplot as plt
 
 def read_image(image_path, greyscale=False):
@@ -18,7 +19,13 @@ def read_image(image_path, greyscale=False):
 
     return image
 
-def get_inverse_green_channel(image):
+def as_greyscale(image):
+    """
+    Return greyscale image from color image
+    """
+    return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+def as_inverse_green(image):
     """
     Read image green channel, invert
     """
@@ -28,6 +35,8 @@ def save_image(image, image_path):
     """
     Save image to file at image_path
     """
+    if image.dtype == np.bool:
+        image = image.astype(np.uint8) * 255
     return cv2.imwrite(image_path, image)
 
 def display_image(image):

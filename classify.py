@@ -3,7 +3,8 @@ Classify pixels as either vessel or background
 """
 
 import pickle
-from sklearn import svm, metrics
+import numpy as np
+from sklearn import svm
 
 def train(feature_image, truth_image):
     """
@@ -11,7 +12,7 @@ def train(feature_image, truth_image):
     """
     flat_image = feature_image.reshape(-1, feature_image.shape[-1])
     flat_truth = truth_image.flatten()
-    model = svm.SVC(kernel='linear')
+    model = svm.SVC(gamma='auto')
     model.fit(flat_image, flat_truth) # Train
     pickle.dump(model, open('model.p', 'wb')) # Persist model
 
@@ -29,6 +30,14 @@ def assess(truth, prediction):
     """
     Display accuracy of classification
     """
-    flat_truth = truth.reshape(-1, truth.shape[-1])
-    flat_prediction = prediction.reshape(-1, prediction.shape[-1])
-    print('Accuracy: {}'.format(metrics.accuracy_score(flat_truth, flat_prediction)))
+    true_positive = np.count_nonzero(np.logical_and(truth, prediction))
+    true_negative = np.count_nonzero(np.logical_and(~truth, ~prediction))
+    false_positive = np.count_nonzero(np.logical_and(~truth, prediction))
+    false_negative = np.count_nonzero(np.logical_and(truth, ~prediction))
+    sensitivity = true_positive / (true_positive + false_negative)
+    specificity = true_negative / (true_negative + false_positive)
+    accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive +
+                                                  false_negative)
+    print('Sensitivity: {}'.format(sensitivity))
+    print('Specificity: {}'.format(specificity))
+    print('Accuracy: {}'.format(accuracy))
