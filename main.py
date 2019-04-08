@@ -39,8 +39,7 @@ def main():
     mask_list = generate_line_mask_list(args.kernel, args.rotation)
     function = lambda x, y: line_score(x, y, mask_list) # Function to apply to each neighborhood
     result = convolve(inverse_green, args.kernel, function, fov_mask.mask, 2, verbose=args.verbose)
-    greyscale = image_utils.as_greyscale(image) # Final feature vector
-    vectors = np.dstack((result, greyscale)) # Union of all feature vectors
+    vectors = np.dstack((result, inverse_green)) # Union of all feature vectors
     vectors = normalize_features(vectors)
     truth = image_utils.read_image('DRIVE/truth/{:02d}_test_truth.tif'.format(args.image),
                                    greyscale=True).astype(np.bool)

@@ -11,4 +11,4 @@ def normalize_features(vectors):
     means = np.mean(vectors, axis=(0, 1))
     deviations = np.std(vectors, axis=(0, 1))
 
-    return vectors * means / deviations
+    return (vectors - means) / deviations
