@@ -5,7 +5,9 @@ Classify pixels as either vessel or background
 import pickle
 import numpy as np
 from sklearn import svm
+from log_execution import log_execution
 
+@log_execution
 def train(feature_image, truth_image):
     """
     Train model from feature array and true classes
@@ -16,6 +18,7 @@ def train(feature_image, truth_image):
     model.fit(flat_image, flat_truth) # Train
     pickle.dump(model, open('model.p', 'wb')) # Persist model
 
+@log_execution
 def classify(feature_image):
     """
     Classify image from feature array and trained model
@@ -26,6 +29,7 @@ def classify(feature_image):
 
     return model.predict(flat_image).reshape(shape)
 
+@log_execution
 def assess(truth, prediction):
     """
     Display accuracy of classification

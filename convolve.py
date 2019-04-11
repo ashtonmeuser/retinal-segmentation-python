@@ -5,9 +5,10 @@ Convolve image with supplied function
 from math import floor
 import numpy as np
 from image_utils import pad_image
-from vprint import vprint
+from log_execution import log_execution
 
-def convolve(image, k_size, function, mask, features, verbose=False): # pylint: disable=R0913,R0914
+@log_execution
+def convolve(image, k_size, function, mask, features):
     """
     Apply function to each pixel in image with a neighborhood size of k_size
     Returns numpy array of floats of depth features
@@ -29,12 +30,9 @@ def convolve(image, k_size, function, mask, features, verbose=False): # pylint: 
         return image[y_index - pad: y_index + 1 + pad, x_index - pad: x_index + 1 + pad]
 
     for y_index in np.arange(pad, image_height + pad):
-        vprint(verbose, 'convolution: {:05.2f}%'.format((y_index - pad) / image_height * 100),
-               end='\r', flush=True)
         for x_index in np.arange(pad, image_width + pad):
             neighborhood = get_neighborhood(image_padded, x_index, y_index, pad)
             mask_neighborhood = get_neighborhood(mask, x_index, y_index, pad)
             result[y_index - pad, x_index - pad] = function(neighborhood, mask_neighborhood)
-    vprint(verbose, 'convolution complete')
 
     return result

@@ -4,7 +4,7 @@ ECE 471 Project
 Ashton Meuser
 """
 
-from time import time
+import logging
 import argparse as ap
 import numpy as np
 from convolve import convolve
@@ -14,7 +14,6 @@ from model.fov_mask import FovMask
 from line_score import line_score
 from classify import train, classify, assess
 from normalize_features import normalize_features
-from vprint import vprint
 
 def main():
     """
@@ -31,37 +30,35 @@ def main():
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     args = parser.parse_args()
 
-    start = time()
+    image_number = '{:02d}'.format(args.image) # Leading zeros used in DRIVE database
+    log_level = logging.DEBUG if args.verbose else logging.ERROR # Log level as per arguments
 
-    image = image_utils.read_image('DRIVE/image/{:02d}_test.tif'.format(args.image)) # Full color
+    logging.basicConfig(format='%(message)s', level=log_level)
+
+    logging.info('Reading image %s from database', image_number)
+    image = image_utils.read_image('DRIVE/image/{}_test.tif'.format(image_number)) # Full color
     inverse_green = image_utils.as_inverse_green(image) # Line detector applied to inverse green
-    fov_mask = FovMask('DRIVE/mask/{:02d}_test_mask.tif'.format(args.image), args.kernel)
+    fov_mask = FovMask('DRIVE/mask/{}_test_mask.tif'.format(image_number), args.kernel)
     mask_list = generate_line_mask_list(args.kernel, args.rotation)
     function = lambda x, y: line_score(x, y, mask_list) # Function to apply to each neighborhood
-    result = convolve(inverse_green, args.kernel, function, fov_mask.mask, 2, verbose=args.verbose)
+    result = convolve(inverse_green, args.kernel, function, fov_mask.mask, 2)
     vectors = np.dstack((result, inverse_green)) # Union of all feature vectors
     vectors = normalize_features(vectors)
-    truth = image_utils.read_image('DRIVE/truth/{:02d}_test_truth.tif'.format(args.image),
+    truth = image_utils.read_image('DRIVE/truth/{}_test_truth.tif'.format(image_number),
                                    greyscale=True).astype(np.bool)
 
     if args.train:
-        vprint(args.verbose, 'Training model')
         train(vectors, truth) # Train SVM, lengthy process
-
-    vprint(args.verbose, 'Classifying image')
-    prediction = classify(vectors)
-    assess(truth, prediction)
-
-    stop = time()
-
-    vprint(args.verbose, 'time elapsed: {:.2f}s'.format(stop - start))
+    else:
+        prediction = classify(vectors)
+        assess(truth, prediction)
 
     if args.save:
         image_utils.save_image(prediction, 'prediction.png')
-        vprint(args.verbose, 'Saved classified image')
+        logging.info('Saved classified image')
     if args.display:
         image_utils.display_image(prediction)
-        vprint(args.verbose, 'Displaying classified image')
+        logging.info('Displaying classified image')
 
 if __name__ == '__main__':
     main()
