@@ -11,7 +11,9 @@ from model.image_collection import ImageCollection
 import image_utils
 import svm
 from calculate_features import calculate_features
+from log_execution import log_execution
 
+@log_execution
 def train_model(images, mask_list, k_size):
     """
     Train model with list of images
@@ -22,6 +24,7 @@ def train_model(images, mask_list, k_size):
     logging.info('Training model with %d image(s)', len(images))
     svm.train(vectors_list, truth_list) # Train SVM, lengthy process
 
+@log_execution
 def classify_image(images, mask_list, k_size, save, display):
     """
     Classify pixels of a single image
