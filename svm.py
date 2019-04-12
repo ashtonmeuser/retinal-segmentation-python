@@ -15,9 +15,9 @@ def train(feature_images, truth_images):
     """
     feature_images = np.array(feature_images) # Cast from list to numpy array
     flat_image = feature_images.reshape(-1, feature_images.shape[-1])
-    flat_truth = np.array(truth_images).flatten() # One-dimensional truth
+    flat_truth = np.ravel(truth_images) # One-dimensional truth
 
-    logging.debug('Training model using %d data points', len(flat_truth))
+    logging.debug('Training model using %d data points', feature_images.size)
 
     model = svm.SVC(gamma='auto')
     model.fit(flat_image, flat_truth) # Train
