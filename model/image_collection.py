@@ -17,8 +17,8 @@ class ImageCollection: # pylint: disable=R0903
 
         logging.info('Reading image, mask, truth %s from database', image_number)
 
-        self.image = image_utils.read_image(f'DRIVE/image/{image_number}_test.tif')
-        self.truth = image_utils.read_image(f'DRIVE/truth/{image_number}_test_truth.tif',
+        self.image = image_utils.read_image('DRIVE/image/{}.tif'.format(image_number))
+        self.truth = image_utils.read_image('DRIVE/truth/{}.tif'.format(image_number),
                                             greyscale=True).astype(np.bool)
-        self.fov_mask = image_utils.read_image(f'DRIVE/mask/{image_number}_test_mask.tif',
+        self.fov_mask = image_utils.read_image('DRIVE/mask/{}.tif'.format(image_number),
                                                greyscale=True)
