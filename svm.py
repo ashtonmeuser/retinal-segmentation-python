@@ -2,18 +2,23 @@
 Support vector machine training, classifying, and assessment
 """
 
+import logging
 import pickle
 import numpy as np
 from sklearn import svm
 from log_execution import log_execution
 
 @log_execution
-def train(feature_image, truth_image): # TODO: Accept list of feature_images
+def train(feature_images, truth_images):
     """
     Train model from feature array and true classes
     """
-    flat_image = feature_image.reshape(-1, feature_image.shape[-1])
-    flat_truth = truth_image.flatten()
+    feature_images = np.array(feature_images) # Cast from list to numpy array
+    flat_image = feature_images.reshape(-1, feature_images.shape[-1])
+    flat_truth = np.array(truth_images).flatten() # One-dimensional truth
+
+    logging.info('Training model using %d data point(s)', len(flat_truth))
+
     model = svm.SVC(gamma='auto')
     model.fit(flat_image, flat_truth) # Train
     pickle.dump(model, open('model.p', 'wb')) # Persist model
