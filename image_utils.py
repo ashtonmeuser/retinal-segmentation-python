@@ -46,9 +46,3 @@ def display_image(image):
     plt.imshow(image, cmap='gray', interpolation='none')
     _ = plt.xticks([]), plt.yticks([])  # to hide tick values on X and Y axis
     plt.show()
-
-def pad_image(image, pad, value):
-    """
-    Apply a border of value and width pad around image
-    """
-    return cv2.copyMakeBorder(image, pad, pad, pad, pad, cv2.BORDER_CONSTANT, value=value)
