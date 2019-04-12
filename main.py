@@ -16,7 +16,7 @@ def train_model(images, mask_list, k_size):
     """
     Train model with list of images
     """
-    logging.info('Calculating feature vectors for %d image(s)', len(images))
+    logging.info('Calculating, normalizing feature vectors for %d image(s)', len(images))
     vectors_list = [calculate_features(x.image, x.fov_mask, mask_list, k_size) for x in images]
     truth_list = [x.truth for x in images]
     logging.info('Training model with %d image(s)', len(images))
@@ -28,7 +28,7 @@ def classify_image(images, mask_list, k_size, save, display):
     """
     if len(images) > 1:
         raise ValueError('Only one image can be classified at once')
-    logging.info('Calculating feature vectors for image')
+    logging.info('Calculating, normalizing feature vectors for image')
     image = images[0] # First and only member
     vectors = calculate_features(image.image, image.fov_mask, mask_list, k_size)
     logging.info('Classifying image pixels')

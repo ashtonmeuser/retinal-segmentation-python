@@ -3,9 +3,7 @@ Normalize feature vectors
 """
 
 import numpy as np
-from log_execution import log_execution
 
-@log_execution
 def normalize_features(vectors):
     """
     Take image features, normalize
