@@ -6,23 +6,46 @@ Ashton Meuser
 
 import logging
 import argparse as ap
-import numpy as np
-from convolve import convolve
-import image_utils
 from model.line_mask import generate_line_mask_list
-from model.fov_mask import FovMask
-from line_score import line_score
+from model.image_collection import ImageCollection
+import image_utils
+from calculate_features import calculate_features
 from classify import train, classify, assess
-from normalize_features import normalize_features
+
+def train_model(images, mask_list, k_size):
+    """
+    Train model with list of images
+    """
+    vectors_list = [calculate_features(x.image, x.fov_mask, mask_list, k_size) for x in images]
+    truth_list = [x.truth for x in images]
+    train(vectors_list, truth_list) # Train SVM, lengthy process
+
+def classify_image(images, mask_list, k_size, save, display):
+    """
+    Classify pixels of a single image
+    """
+    if len(images) > 1:
+        raise ValueError('Only one image can be classified at once')
+    image = images[0] # First and only member
+    vectors = calculate_features(image.image, image.fov_mask, mask_list, k_size)
+    prediction = classify(vectors)
+    assess(image.truth, prediction)
+
+    if save:
+        image_utils.save_image(prediction, 'prediction.png')
+        logging.info('Saved classified image')
+    if display:
+        image_utils.display_image(prediction)
+        logging.info('Displaying classified image')
 
 def main():
     """
-    Run the program
-    Avoids globals
+    Run main logic, decide between model training and image classification
     """
     parser = ap.ArgumentParser()
-    parser.add_argument('-i', '--image', help='Image number from database', type=int, required=True)
-    parser.add_argument('-k', '--kernel', help='Window size', type=int, default=15)
+    parser.add_argument('-i', '--images', help='Image number(s) from database', nargs='+',
+                        type=int, required=True)
+    parser.add_argument('-k', '--kernel', help='Neighborhood size', type=int, default=15)
     parser.add_argument('-r', '--rotation', help='Rotational resolution', type=int, default=15)
     parser.add_argument('-s', '--save', help='Save image', action='store_true')
     parser.add_argument('-t', '--train', help='Train SVM model', action='store_true')
@@ -30,35 +53,16 @@ def main():
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     args = parser.parse_args()
 
-    image_number = '{:02d}'.format(args.image) # Leading zeros used in DRIVE database
-    log_level = logging.DEBUG if args.verbose else logging.ERROR # Log level as per arguments
-
+    log_level = logging.DEBUG if args.verbose else logging.ERROR # Log level verbosity
     logging.basicConfig(format='%(message)s', level=log_level)
 
-    logging.info('Reading image %s from database', image_number)
-    image = image_utils.read_image('DRIVE/image/{}_test.tif'.format(image_number)) # Full color
-    inverse_green = image_utils.as_inverse_green(image) # Line detector applied to inverse green
-    fov_mask = FovMask('DRIVE/mask/{}_test_mask.tif'.format(image_number), args.kernel)
+    image_collections = [ImageCollection(x) for x in args.images]
     mask_list = generate_line_mask_list(args.kernel, args.rotation)
-    function = lambda x, y: line_score(x, y, mask_list) # Function to apply to each neighborhood
-    result = convolve(inverse_green, args.kernel, function, fov_mask.mask, 2)
-    vectors = np.dstack((result, inverse_green)) # Union of all feature vectors
-    vectors = normalize_features(vectors)
-    truth = image_utils.read_image('DRIVE/truth/{}_test_truth.tif'.format(image_number),
-                                   greyscale=True).astype(np.bool)
 
-    if args.train:
-        train(vectors, truth) # Train SVM, lengthy process
-    else:
-        prediction = classify(vectors)
-        assess(truth, prediction)
-
-    if args.save:
-        image_utils.save_image(prediction, 'prediction.png')
-        logging.info('Saved classified image')
-    if args.display:
-        image_utils.display_image(prediction)
-        logging.info('Displaying classified image')
+    if args.train: # Train model, lenthy process
+        train_model(image_collections, mask_list, args.kernel)
+    else: # Classify image, assess accuracy
+        classify_image(image_collections, mask_list, args.kernel, args.save, args.display)
 
 if __name__ == '__main__':
     main()
