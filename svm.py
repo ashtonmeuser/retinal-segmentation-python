@@ -1,5 +1,5 @@
 """
-Classify pixels as either vessel or background
+Support vector machine training, classifying, and assessment
 """
 
 import pickle
@@ -8,7 +8,7 @@ from sklearn import svm
 from log_execution import log_execution
 
 @log_execution
-def train(feature_image, truth_image):
+def train(feature_image, truth_image): # TODO: Accept list of feature_images
     """
     Train model from feature array and true classes
     """

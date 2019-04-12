@@ -9,8 +9,8 @@ import argparse as ap
 from model.line_mask import generate_line_mask_list
 from model.image_collection import ImageCollection
 import image_utils
+import svm
 from calculate_features import calculate_features
-from classify import train, classify, assess
 
 def train_model(images, mask_list, k_size):
     """
@@ -18,7 +18,7 @@ def train_model(images, mask_list, k_size):
     """
     vectors_list = [calculate_features(x.image, x.fov_mask, mask_list, k_size) for x in images]
     truth_list = [x.truth for x in images]
-    train(vectors_list, truth_list) # Train SVM, lengthy process
+    svm.train(vectors_list, truth_list) # Train SVM, lengthy process
 
 def classify_image(images, mask_list, k_size, save, display):
     """
@@ -28,8 +28,8 @@ def classify_image(images, mask_list, k_size, save, display):
         raise ValueError('Only one image can be classified at once')
     image = images[0] # First and only member
     vectors = calculate_features(image.image, image.fov_mask, mask_list, k_size)
-    prediction = classify(vectors)
-    assess(image.truth, prediction)
+    prediction = svm.classify(vectors)
+    svm.assess(image.truth, prediction)
 
     if save:
         image_utils.save_image(prediction, 'prediction.png')
