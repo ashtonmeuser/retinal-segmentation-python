@@ -17,7 +17,7 @@ def train(feature_images, truth_images):
     flat_image = feature_images.reshape(-1, feature_images.shape[-1])
     flat_truth = np.array(truth_images).flatten() # One-dimensional truth
 
-    logging.info('Training model using %d data point(s)', len(flat_truth))
+    logging.debug('Training model using %d data points', len(flat_truth))
 
     model = svm.SVC(gamma='auto')
     model.fit(flat_image, flat_truth) # Train

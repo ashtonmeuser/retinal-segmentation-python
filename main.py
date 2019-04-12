@@ -16,6 +16,7 @@ def train_model(images, mask_list, k_size):
     """
     Train model with list of images
     """
+    logging.info('Calculating feature vectors for %d image(s)', len(images))
     vectors_list = [calculate_features(x.image, x.fov_mask, mask_list, k_size) for x in images]
     truth_list = [x.truth for x in images]
     svm.train(vectors_list, truth_list) # Train SVM, lengthy process
@@ -26,6 +27,7 @@ def classify_image(images, mask_list, k_size, save, display):
     """
     if len(images) > 1:
         raise ValueError('Only one image can be classified at once')
+    logging.info('Classifying image pixels')
     image = images[0] # First and only member
     vectors = calculate_features(image.image, image.fov_mask, mask_list, k_size)
     prediction = svm.classify(vectors)
@@ -53,9 +55,10 @@ def main():
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     args = parser.parse_args()
 
-    log_level = logging.DEBUG if args.verbose else logging.ERROR # Log level verbosity
+    log_level = logging.DEBUG if args.verbose else logging.INFO # Logging verbosity
     logging.basicConfig(format='%(message)s', level=log_level)
 
+    logging.info('Reading image(s) from DRIVE database')
     image_collections = [ImageCollection(x) for x in args.images]
     mask_list = generate_line_mask_list(args.kernel, args.rotation)
 

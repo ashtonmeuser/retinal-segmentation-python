@@ -15,7 +15,7 @@ class ImageCollection: # pylint: disable=R0903
         if isinstance(image_number, int):
             image_number = '{:02d}'.format(image_number) # Leading zeros used in DRIVE database
 
-        logging.info('Reading image, mask, truth %s from database', image_number)
+        logging.debug('Reading image, mask, truth %s from database', image_number)
 
         self.image = image_utils.read_image('DRIVE/image/{}.tif'.format(image_number))
         self.truth = image_utils.read_image('DRIVE/truth/{}.tif'.format(image_number),
