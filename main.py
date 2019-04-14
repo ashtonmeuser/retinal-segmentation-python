@@ -4,6 +4,7 @@ ECE 471 Project
 Ashton Meuser
 """
 
+from datetime import datetime
 import logging
 import argparse as ap
 from model.line_mask import generate_line_mask_list
@@ -62,6 +63,8 @@ def main():
 
     log_level = logging.DEBUG if args.verbose else logging.INFO # Logging verbosity
     logging.basicConfig(format='%(message)s', level=log_level)
+
+    logging.info('Execution started %s', datetime.now().isoformat())
 
     logging.info('Reading %d image(s) from DRIVE database', len(args.images))
     image_collections = [ImageCollection(x) for x in args.images]

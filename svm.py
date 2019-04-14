@@ -5,7 +5,8 @@ Support vector machine training, classifying, and assessment
 import logging
 import pickle
 import numpy as np
-from sklearn import svm
+from sklearn.svm import SVC
+from sklearn.ensemble import BaggingClassifier
 from log_execution import log_execution
 
 @log_execution
@@ -19,7 +20,10 @@ def train(feature_images, truth_images):
 
     logging.debug('Training model using %d data points', feature_images.size)
 
-    model = svm.SVC(gamma='auto')
+    base_estimator = SVC(gamma='auto')
+    num_estimators = feature_images.shape[0]
+    num_samples = np.prod(feature_images.shape[1:3])
+    model = BaggingClassifier(base_estimator, n_estimators=num_estimators, max_samples=num_samples)
     model.fit(flat_image, flat_truth) # Train
     pickle.dump(model, open('model.p', 'wb')) # Persist model
 
