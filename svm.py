@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.svm import SVC
 from sklearn.ensemble import BaggingClassifier
 from sklearn.metrics import roc_curve, roc_auc_score
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 from log_execution import log_execution
 
 @log_execution
@@ -39,15 +39,15 @@ def classify(feature_image):
     flat_image = feature_image.reshape(-1, feature_image.shape[-1])
     probabilities = model.predict_proba(flat_image) # Zero to one probabilities
     probabilities = probabilities[:, 1].reshape(shape) # Probability of vessel
+    prediction = np.where(probabilities >= 0.5, True, False) # Binary classification
 
-    return probabilities
+    return probabilities, prediction
 
 @log_execution
-def assess(truth, probabilities):
+def assess(truth, prediction):
     """
     Display accuracy of classification
     """
-    prediction = np.where(probabilities >= 0.5, True, False).astype(np.bool)
     true_positive = np.count_nonzero(np.logical_and(truth, prediction))
     true_negative = np.count_nonzero(np.logical_and(~truth, ~prediction))
     false_positive = np.count_nonzero(np.logical_and(~truth, prediction))
@@ -56,9 +56,9 @@ def assess(truth, probabilities):
     specificity = true_negative / (true_negative + false_positive)
     accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive +
                                                   false_negative)
-    print('Sensitivity: {}'.format(sensitivity))
-    print('Specificity: {}'.format(specificity))
-    print('Accuracy: {}'.format(accuracy))
+    logging.info('Sensitivity: %f', sensitivity)
+    logging.info('Specificity: %f', specificity)
+    logging.info('Accuracy: %f', accuracy)
 
 def plot_roc(truth, probabilities):
     """
@@ -66,10 +66,16 @@ def plot_roc(truth, probabilities):
     """
     flat_probabilities = np.ravel(probabilities)
     flat_truth = np.ravel(truth) # One-dimensional truth
-    fpr, tpr, _ = roc_curve(flat_truth, flat_probabilities)
+    fp_rate, tp_rate, _ = roc_curve(flat_truth, flat_probabilities)
     auc = roc_auc_score(flat_truth, flat_probabilities)
 
-    print('AUC: {}'.format(auc))
-    plt.plot([0, 1], [0, 1], linestyle='--')
-    plt.plot(fpr, tpr, label='roc')
-    plt.show()
+    logging.info('AUC: %f', auc)
+
+    logging.getLogger('matplotlib').setLevel(logging.ERROR) # Mute matplotlib
+    pyplot.figure()
+    pyplot.ylabel('True Positive Rate')
+    pyplot.xlabel('False Positive Rate')
+    pyplot.title('Receiver Operating Characteristic')
+    pyplot.plot(fp_rate, tp_rate, label='AUC: {}'.format(auc))
+    pyplot.legend(loc='lower right')
+    pyplot.show()

@@ -36,8 +36,9 @@ def classify_image(images, mask_list, k_size, save, display):
     image = images[0] # First and only member
     vectors = calculate_features(image.image, image.fov_mask, mask_list, k_size)
     logging.info('Classifying image pixels')
-    prediction = svm.classify(vectors)
+    probabilities, prediction = svm.classify(vectors)
     svm.assess(image.truth, prediction)
+    svm.plot_roc(image.truth, probabilities)
 
     if save:
         image_utils.save_image(prediction, 'prediction.png')
