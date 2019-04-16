@@ -3,6 +3,7 @@ Support vector machine training, classifying, and assessment
 """
 
 import logging
+from warnings import warn
 import pickle
 import numpy as np
 from sklearn.svm import SVC
@@ -64,6 +65,10 @@ def plot_roc(truth, probabilities):
     """
     Plot ROC curve
     """
+    if np.array_equal(np.unique(probabilities), [0, 1]):
+        warn('ROC curve can\'t be plotted as the model was trained with probability set to false')
+        return
+
     flat_probabilities = np.ravel(probabilities)
     flat_truth = np.ravel(truth) # One-dimensional truth
     fp_rate, tp_rate, _ = roc_curve(flat_truth, flat_probabilities)
