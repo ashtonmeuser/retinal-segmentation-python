@@ -29,14 +29,14 @@ def train(feature_images, truth_images, probability):
     num_samples = np.prod(feature_images.shape[1:3])
     model = BaggingClassifier(base_estimator, n_estimators=num_estimators, max_samples=num_samples)
     model.fit(flat_image, flat_truth) # Train
-    pickle.dump(model, open('model.p', 'wb')) # Persist model
+    pickle.dump(model, open('models/model.p', 'wb')) # Persist model
 
 @log_execution
 def classify(feature_image):
     """
     Classify image from feature array and trained model
     """
-    model = pickle.load(open('model.p', 'rb')) # Load model
+    model = pickle.load(open('models/model.p', 'rb')) # Load model
     shape = feature_image.shape[:2]
     flat_image = feature_image.reshape(-1, feature_image.shape[-1])
     probabilities = model.predict_proba(flat_image) # Zero to one probabilities

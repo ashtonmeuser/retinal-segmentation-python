@@ -2,7 +2,7 @@ venv
 __pycache__
 DRIVE/test
 DRIVE/training
-model.p
+models/model.p
 prediction.png
 00.tif
 DRHAGIS/Fundus_Images

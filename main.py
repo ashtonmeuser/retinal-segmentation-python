@@ -7,8 +7,8 @@ Ashton Meuser
 from datetime import datetime
 import logging
 import argparse as ap
-from model.line_mask import generate_line_mask_list
-from model.image_collection import ImageCollection
+from object_classes.line_mask import generate_line_mask_list
+from object_classes.image_collection import ImageCollection
 import image_utils
 import svm
 from calculate_features import calculate_features
