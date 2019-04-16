@@ -13,7 +13,7 @@ from matplotlib import pyplot
 from log_execution import log_execution
 
 @log_execution
-def train(feature_images, truth_images):
+def train(feature_images, truth_images, probability):
     """
     Train model from feature array and true classes
     """
@@ -21,9 +21,10 @@ def train(feature_images, truth_images):
     flat_image = feature_images.reshape(-1, feature_images.shape[-1])
     flat_truth = np.ravel(truth_images) # One-dimensional truth
 
-    logging.debug('Training model using %d data points', feature_images.size)
+    logging.debug('Training %s model using %d data points',
+                  'probabilistic' if probability else 'binary', feature_images.size)
 
-    base_estimator = SVC(gamma='auto', probability=True)
+    base_estimator = SVC(gamma='auto', probability=probability)
     num_estimators = feature_images.shape[0]
     num_samples = np.prod(feature_images.shape[1:3])
     model = BaggingClassifier(base_estimator, n_estimators=num_estimators, max_samples=num_samples)
@@ -53,11 +54,13 @@ def assess(truth, prediction):
     true_negative = np.count_nonzero(np.logical_and(~truth, ~prediction))
     false_positive = np.count_nonzero(np.logical_and(~truth, prediction))
     false_negative = np.count_nonzero(np.logical_and(truth, ~prediction))
+    precision = true_positive / np.count_nonzero(prediction)
     sensitivity = true_positive / (true_positive + false_negative)
     specificity = true_negative / (true_negative + false_positive)
     accuracy = (true_positive + true_negative) / (true_positive + true_negative + false_positive +
                                                   false_negative)
-    logging.info('Sensitivity: %f', sensitivity)
+    logging.info('Precision: %f', precision)
+    logging.info('Recall/Sensitivity: %f', sensitivity)
     logging.info('Specificity: %f', specificity)
     logging.info('Accuracy: %f', accuracy)
 
