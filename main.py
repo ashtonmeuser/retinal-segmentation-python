@@ -58,7 +58,7 @@ def main():
     parser.add_argument('-r', '--rotation', help='Rotational resolution', type=int, default=15)
     parser.add_argument('-t', '--train', help='Train SVM model', action='store_true')
     parser.add_argument('-p', '--proba', help='Probabilistic SVM model', action='store_true')
-    parser.add_argument('--hagis', help='Use DR HAGIS database', action='store_true')
+    parser.add_argument('--drhagis', help='Use DR HAGIS database', action='store_true')
     parser.add_argument('-s', '--save', help='Save image', action='store_true')
     parser.add_argument('-d', '--display', help='Display segmented image', action='store_true')
     parser.add_argument('-v', '--verbose', help='Verbose logging', action='store_true')
@@ -69,7 +69,7 @@ def main():
 
     logging.info('Execution started %s', datetime.now().isoformat())
 
-    database = 'DRHAGIS' if args.hagis else 'DRIVE'
+    database = 'DRHAGIS' if args.drhagis else 'DRIVE'
     logging.info('Reading %d image(s) from %s database', len(args.images), database)
     image_collections = [ImageCollection(x, database) for x in args.images]
     mask_list = generate_line_mask_list(args.kernel, args.rotation)

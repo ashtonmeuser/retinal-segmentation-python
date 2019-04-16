@@ -32,7 +32,7 @@ The same settings should be used for kernel size and rotational resolution when 
 | **k**  | kernel   | The neighborhood size used in line detection
 | **r**  | rotation | Rotational resolution used in line detection
 | **t**  | train    | Instruct program to train the model
-|        | hagis    | Use DR HAGIS database
+|        | drhagis  | Use DR HAGIS database
 | **p**  | proba    | Train SVM as probabilistic model (longer training)
 | **s**  | save     | Save the segmented image as a PNG
 | **d**  | display  | Display the segmented image
