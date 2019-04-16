@@ -5,3 +5,6 @@ DRIVE/training
 model.p
 prediction.png
 00.tif
+DRHAGIS/Fundus_Images
+DRHAGIS/Mask_Images
+DRHAGIS/Manual_Segmentations
